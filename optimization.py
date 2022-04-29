@@ -54,7 +54,7 @@ def get_scheduler():
         return log_2
 
 
-def optimize(func, start, borders, from_check_point=False, check_point_path=None):
+def optimize(func, start, borders, from_check_point=False, check_point_path=None, break_after_calling=0):
     if from_check_point:
         try:
             position, T, scheduler, iteration_counter = condition_to_parameters(check_point_path)
@@ -67,16 +67,18 @@ def optimize(func, start, borders, from_check_point=False, check_point_path=None
         scheduler = get_scheduler()
         iteration_counter = 0
         T = config.STARTING_TEMPERATURE
-        _logging.info_message(f"Using {config.COOLING_SCHEDULE} scheduler and starting t = {T}")
+        # _logging.info_message(f"Using {config.COOLING_SCHEDULE} scheduler and starting t = {T}")
         position = start
     checkpoint_counter = 0
     log_steps = [position]
+    calling = 0
     while T > config.STOPPING_TEMPERATURE:
         iteration_counter += 1
         for i in range(config.ITERATION_PER_TEMPERATURE):
             neighbour = random_neighbour(position, borders)
             try:
                 diff = func(neighbour) - func(position)
+                calling += 1
             except Exception as ex:
                 _logging.warning_message("Error during function calculation:" + str(ex))
                 return
@@ -92,7 +94,8 @@ def optimize(func, start, borders, from_check_point=False, check_point_path=None
             except Exception as ex:
                 _logging.warning_message(f"Error during position changing:{ex}")
                 continue
-
+        if break_after_calling > 0 and break_after_calling == calling:
+            return position, log_steps
         T = scheduler(T)
         checkpoint_counter += 1
         if checkpoint_counter == config.CHECKPOINT_EVERY_COOLING:
