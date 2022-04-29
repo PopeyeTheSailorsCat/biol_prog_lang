@@ -1,11 +1,29 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sympy.parsing.sympy_parser import parse_expr
-
 import config
 import optimization
 import _logging
 import argparse
+
+from functools import lru_cache, wraps
+
+
+def np_cache(function):
+    @lru_cache()
+    def cached_wrapper(hashable_array):
+        array = np.array(hashable_array)
+        return function(array)
+
+    @wraps(function)
+    def wrapper(array):
+        return cached_wrapper(tuple(array))
+
+    # copy lru_cache attributes over too
+    wrapper.cache_info = cached_wrapper.cache_info
+    wrapper.cache_clear = cached_wrapper.cache_clear
+
+    return wrapper
 
 
 def parse_input(file_path):
@@ -39,6 +57,7 @@ def parse_input(file_path):
         return expr_line, vars, initial_values, np.array([lower_bounds, upper_bounds])
 
 
+@np_cache
 def function_call(value_vector):
     vars_val = dict(zip(function_call.vars, value_vector))
     return parse_expr(function_call.expr, local_dict=vars_val)
@@ -69,12 +88,9 @@ def main(path, args):
     except Exception as ex:
         _logging.error_message("Error during input reading")
         return -1
-
     function_call.expr = expr_str
     function_call.vars = vars
-
     try:
-
         opt_position, steps = optimization.optimize(function_call, initial, bounds, from_check_point=args.checkpoint,
                                                     check_point_path=args.checkpoint_path)
     except Exception as ex:

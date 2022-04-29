@@ -5,6 +5,7 @@ from math import exp
 import _logging
 import sympy
 
+
 def parameters_to_condition(position, temperature, iteration):
     _logging.checkpoint([position, temperature, iteration])
 
@@ -34,7 +35,7 @@ def get_scheduler():
             _logging.error_message("Linear param <= than 0")
         return lambda x: x - config.linear_param
     elif config.COOLING_SCHEDULE == "geom":
-        if config.geom_param >=1:
+        if config.geom_param >= 1:
             _logging.error_message("Geom param > 1")
         return lambda x: config.geom_param * x
     elif config.COOLING_SCHEDULE == "log_1":
@@ -61,6 +62,7 @@ def optimize(func, start, borders, from_check_point=False, check_point_path=None
             _logging.info_message(f"position:{position}, T:{T}, scheduler: {config.COOLING_SCHEDULE}")
         except Exception as ex:
             _logging.error_message(f"ERROR during checkpoint reading:{ex}")
+            return
     else:
         scheduler = get_scheduler()
         iteration_counter = 0
@@ -76,14 +78,14 @@ def optimize(func, start, borders, from_check_point=False, check_point_path=None
             try:
                 diff = func(neighbour) - func(position)
             except Exception as ex:
-                _logging.warning_message("Error during function calculation:"+str(ex))
+                _logging.warning_message("Error during function calculation:" + str(ex))
                 return
 
             if diff.has(sympy.oo, -sympy.oo, sympy.zoo, sympy.nan):
                 _logging.warning_message(f"Error during function calculation:{diff}")
                 continue
 
-            try :
+            try:
                 if diff < 0 or random.random() < exp(-diff / (T + config.SAVING_DIVISION_EPSILON)):
                     position = neighbour
                     log_steps.append(position)
