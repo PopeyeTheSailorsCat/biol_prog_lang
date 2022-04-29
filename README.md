@@ -57,4 +57,5 @@ python main.py -p input_path -o output_path
 ```commandline
 python main.py -p input_path  -c -ch_pth checkpoint_path
 ```
-
+# Требования
+Python > 3.7
