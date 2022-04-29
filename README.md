@@ -48,6 +48,7 @@ python main.py
 ````commandline
 python main.py -e 1
 ````
+![alt text](imgs/run_example.PNG)
 Запуск на вашем inpute c outputОм будет выглядеть как
 ```commandline
 python main.py -p input_path -o output_path
@@ -57,4 +58,5 @@ python main.py -p input_path -o output_path
 ```commandline
 python main.py -p input_path  -c -ch_pth checkpoint_path
 ```
-
+# Требования
+Python > 3.7
