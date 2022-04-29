@@ -80,5 +80,4 @@ Time complexity: 12884.6867.
 * mean: 0.8009275518142329  
 * median: 0.5231811135393163  
 * std: 0.8364133142260313  
-
-Process finished with exit code 0
+Минимум данной функции = 0
